@@ -6,10 +6,11 @@ import requests
 
 from multiprocessing import Process
 from constants.constants import SERVICE_URL
-from modules.dynamic.FileCreationScanner import FileCreationScanner
-from modules.dynamic.ProcessScanner import ProcessScanner
+from modules.dynamic.FileCreationMonitor import FileCreationMonitor
+from modules.dynamic.ProcessMonitor import ProcessMonitor
+from modules.dynamic.RegistryActivityMonitor import RegistryActivityMonitor
 from modules.static.FilesScanner import FilesScanner
-from modules.dynamic.NetworkScanner import NetworkScanner
+from modules.dynamic.NetworkMonitor import NetworkMonitor
 from modules.static.RegistryScanner import RegistryScanner
 
 
@@ -60,10 +61,10 @@ class MonitorModule:
         except Exception:
             print('[Ошибка] Сканирование файловой системы прервано\n')
 
-    def scan_network(self):
+    def monitor_network(self):
         print('Мониторинг сетевой активности...\n')
-        network_scanner = NetworkScanner(self)
-        network_scanner.scan_network()
+        network_monitor = NetworkMonitor(self)
+        network_monitor.scan_network()
 
     def scan_registry(self):
         print('Сканирование реестра...\n')
@@ -77,35 +78,50 @@ class MonitorModule:
         except Exception:
             print('[Ошибка] Сканирование реестра прервано\n')
 
-    def scan_processes(self):
+    def monitor_processes(self):
         print('Мониторинг процессов...\n')
-        processes_scanner = ProcessScanner(self)
-        processes_scanner.start()
+        processes_monitor = ProcessMonitor(self)
+        processes_monitor.start()
 
         try:
             while True:
                 time.sleep(60)
         except KeyboardInterrupt:
-            processes_scanner.stop()
+            processes_monitor.stop()
             print('Мониторинг процессов окончен\n')
         except Exception:
-            processes_scanner.stop()
+            processes_monitor.stop()
             print('[Ошибка] Мониторинг процессов прерван\n')
 
-    def scan_files_etw(self):
+    def monitor_files(self):
         print('Мониторинг файловой системы...\n')
-        files_scanner = FileCreationScanner(self)
-        files_scanner.start()
+        files_monitor = FileCreationMonitor(self)
+        files_monitor.start()
 
         try:
             while True:
                 time.sleep(60)
         except KeyboardInterrupt:
-            files_scanner.stop()
+            files_monitor.stop()
             print('Мониторинг файловой системы окончен\n')
         except Exception:
-            files_scanner.stop()
+            files_monitor.stop()
             print('[Ошибка] Мониторинг файловой системы прерван\n')
+
+    def monitor_registry(self):
+        print('Мониторинг реестра...\n')
+        registry_monitor = RegistryActivityMonitor(self)
+        registry_monitor.start()
+
+        try:
+            while True:
+                time.sleep(60)
+        except KeyboardInterrupt:
+            registry_monitor.stop()
+            print('Мониторинг реестра окончен\n')
+        except Exception:
+            registry_monitor.stop()
+            print('[Ошибка] Мониторинг реестра прерван\n')
 
 
 if __name__ == '__main__':
@@ -117,9 +133,10 @@ if __name__ == '__main__':
 
     monitor = MonitorModule()
 
-    dynamic_files = Process(target=monitor.scan_files_etw)
-    dynamic_processes = Process(target=monitor.scan_processes)
-    dynamic_network = Process(target=monitor.scan_network)
+    dynamic_files = Process(target=monitor.monitor_files)
+    dynamic_processes = Process(target=monitor.monitor_processes)
+    dynamic_network = Process(target=monitor.monitor_network)
+    dynamic_registry = Process(target=monitor.monitor_registry)
     static_files = None
     static_registry = None
 
@@ -132,11 +149,13 @@ if __name__ == '__main__':
     dynamic_network.start()
     dynamic_files.start()
     dynamic_processes.start()
+    dynamic_registry.start()
 
     try:
         dynamic_files.join()
         dynamic_processes.join()
         dynamic_network.join()
+        dynamic_registry.join()
 
         if not args.no_static:
             static_files.join()

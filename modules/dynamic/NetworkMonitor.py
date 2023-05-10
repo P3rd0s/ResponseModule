@@ -3,7 +3,7 @@ import pyshark
 from constants.constants import SERVICE_URL
 
 
-class NetworkScanner:
+class NetworkMonitor:
 
     parent = None
 

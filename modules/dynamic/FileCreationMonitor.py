@@ -9,7 +9,7 @@ def print_warning(path, id):
     print('Создан файл: {}. Подробнее - {}/ioc/{}'.format(path, SERVICE_URL, id))
 
 
-class FileCreationScanner(etw.ETW):
+class FileCreationMonitor(etw.ETW):
 
     parent = None
 

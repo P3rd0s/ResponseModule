@@ -18,7 +18,7 @@ def print_warning(path, id):
     print('Процесс: {}. Подробнее - {}/ioc/{}'.format(path, SERVICE_URL, id))
 
 
-class ProcessScanner(etw.ETW):
+class ProcessMonitor(etw.ETW):
 
     parent = None
 
