@@ -3,10 +3,15 @@ import re
 import etw
 
 from constants.constants import SERVICE_URL, FILE_PROVIDER, FILE_GUID
+from modules.helpers.HashChecker import HashChecker
 
 
 def print_warning(path, id):
     print('Создан файл: {}. Подробнее - {}/ioc/{}'.format(path, SERVICE_URL, id))
+
+
+def print_hash_warning(path, id, hash_type):
+    print('Создан файл, {}: {}. Подробнее - {}/ioc/{}'.format(hash_type, path, SERVICE_URL, id))
 
 
 class FileCreationMonitor(etw.ETW):
@@ -36,3 +41,20 @@ class FileCreationMonitor(etw.ETW):
                     print_warning(file_path, ioc['id'])
                     break
 
+            try:
+                for ioc in self.parent.base_md5:
+                    if ioc['ioc'] == HashChecker.md5(file_path):
+                        print_hash_warning(file_path, ioc['id'], 'MD5')
+                        break
+
+                for ioc in self.parent.base_sha1:
+                    if ioc['ioc'] == HashChecker.sha1(file_path):
+                        print_hash_warning(file_path, ioc['id'], 'SHA1')
+                        break
+
+                for ioc in self.parent.base_sha256:
+                    if ioc['ioc'] == HashChecker.sha256(file_path):
+                        print_hash_warning(file_path, ioc['id'], 'SHA256')
+                        break
+            except:
+                pass

@@ -22,7 +22,7 @@ def convert_ioc(ioc, with_paths = False):
 
 
 def convert_url(ioc):
-    return {'id': ioc['id'], 'ioc': re.sub('\\[(.)\\]| ', '.', ioc['ioc'])}
+    return {'id': ioc['id'], 'ioc': re.sub('\\[(.)\\]| ', '.', ioc['ioc']).replace('hxxp', 'http')}
 
 
 class MonitorModule:
@@ -129,7 +129,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Модуль мониторинга и реанирования на индикаторы компрометации')
     parser.add_argument('--no-static', action='store_true', help='Полное сканирование системы')
     args = parser.parse_args()
-    print(args.no_static)
 
     monitor = MonitorModule()
 

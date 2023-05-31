@@ -1,8 +1,8 @@
-import hashlib
 import os
 from os import walk
 
 from constants.constants import SERVICE_URL
+from modules.helpers.HashChecker import HashChecker
 
 
 class FilesScanner:
@@ -17,31 +17,13 @@ class FilesScanner:
             self.init_path = os.path.abspath(os.curdir)
         self.parent = parent
 
-    def md5(self, fname):
-        hash_md5 = hashlib.md5()
-        with open(fname, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest()
-
-    def sha1(self, fname):
-        hash_sha1 = hashlib.sha1()
-        with open(fname, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_sha1.update(chunk)
-        return hash_sha1.hexdigest()
-
-    def sha256(self, fname):
-        hash_sha256 = hashlib.sha256()
-        with open(fname, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_sha256.update(chunk)
-        return hash_sha256.hexdigest()
-
     def check_files(self):
 
         def print_warning(path, id):
             print('Файл: {}. Подробнее - {}/ioc/{}'.format(path, SERVICE_URL, id))
+
+        def print_hash_warning(path, id, hash_type):
+            print('Создан файл, {}: {}. Подробнее - {}/ioc/{}'.format(hash_type, path, SERVICE_URL, id))
 
         # self.parent.base_paths.append({'id': 12, 'ioc': 'C:\\Education\\NIR\\IOC Collector\\reaction-module\\test.txt'})
 
@@ -61,16 +43,16 @@ class FilesScanner:
                         break
 
                 for ioc in self.parent.base_md5:
-                    if ioc['ioc'] == self.md5(full_path):
-                        print_warning(full_path, ioc['id'])
+                    if ioc['ioc'] == HashChecker.md5(full_path):
+                        print_hash_warning(full_path, ioc['id'], 'MD5')
                         break
 
                 for ioc in self.parent.base_sha1:
-                    if ioc['ioc'] == self.sha1(full_path):
-                        print_warning(full_path, ioc['id'])
+                    if ioc['ioc'] == HashChecker.sha1(full_path):
+                        print_hash_warning(full_path, ioc['id'], 'SHA1')
                         break
 
                 for ioc in self.parent.base_sha256:
-                    if ioc['ioc'] == self.sha256(full_path):
-                        print_warning(full_path, ioc['id'])
+                    if ioc['ioc'] == HashChecker.sha256(full_path):
+                        print_hash_warning(full_path, ioc['id'], 'SHA256')
                         break
