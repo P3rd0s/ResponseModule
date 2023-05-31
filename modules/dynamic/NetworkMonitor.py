@@ -39,7 +39,7 @@ class NetworkMonitor:
 
                 for ioc in self.parent.base_Hosts:
                     if ioc['ioc'] == url:
-                        print_warning(url + 'Порт: ' + packet[protocol].srcport, ioc['id'])
+                        print_warning(url + ' Порт: ' + packet[protocol].srcport, ioc['id'])
                         break
 
             except AttributeError as e:
